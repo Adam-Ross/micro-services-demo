@@ -6,29 +6,27 @@ app.use(express.json())
 
 const PORT = 3002
 
-const posts = {}
+const posts = {
+    "a97c99e6": {
+        "title": "First post",
+        "id": "a97c99e6"
+    }
+}
 
 app.get('/posts', (req, res) => {
     res.send(posts)
 })
 
 app.post('/posts', (req, res) => {
-    randomBytes(4, (err, buf) => {
-        if(err) {
-            console.error(err.message)
-        }
+    const id = randomBytes(4).toString('hex')
+    const { title } = req.body
+    const newPost = {
+        title,
+        id
+    }
 
-        const {postTitle, postBody} = req.body
-        const newPost = {
-            postTitle,
-            postBody,
-        }
-
-        const id = buf.toString('hex')
-        posts[id] = newPost
-        res.send(posts)
-    })
-    
+    posts[id] = newPost
+    res.send(posts)
 })
 
 app.listen(PORT, () => {
