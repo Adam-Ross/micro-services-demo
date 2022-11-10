@@ -1,36 +1,32 @@
-const express = require('express')
-const {randomBytes} = require('crypto')
+const express = require('express');
+const bodyParser = require('body-parser');
+const { randomBytes } = require('crypto');
 const cors = require('cors')
 
-const app = express()
+const app = express();
+// cors middleware
 app.use(cors())
-app.use(express.json())
+app.use(bodyParser.json());
 
-const PORT = 3003
-
-const commentsByPostId = {}
+const commentsByPostId = {};
 
 app.get('/posts/:id/comments', (req, res) => {
-    const id = req.params.id
-    res.send(commentsByPostId[id])
-})
+  res.send(commentsByPostId[req.params.id] || []);
+});
 
-app.post('/posts/:id/comments', (req, res) => {  
-    // destruc ID of params
-    const id = req.params.id
-    // get optional body data
-    const {body} = req.body
-    // create new ID
-    const commentId = randomBytes(4).toString('hex')
+app.post('/posts/:id/comments', (req, res) => {
+  const commentId = randomBytes(4).toString('hex');
+  const { content } = req.body;
 
-    // Create new comments array if not there
-    const comments = commentsByPostId[id] || [] 
-    comments.push({body, commentId})
-    commentsByPostId[id] = comments
-    res.send(commentsByPostId)
-})
+  const comments = commentsByPostId[req.params.id] || [];
 
+  comments.push({ id: commentId, content });
 
-app.listen(PORT, () => {
-    console.log(`Listening on port: ${PORT}`)
-})
+  commentsByPostId[req.params.id] = comments;
+
+  res.status(201).send(comments);
+});
+
+app.listen(4001, () => {
+  console.log('Listening on 4001');
+});
